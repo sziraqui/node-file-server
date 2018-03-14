@@ -5,8 +5,8 @@
     <title>Node File-uploader</title>
   </head>
   <body>
-    <form class="upload-form" action="upload.js" method="post">
-      <input type="file" name="browse-btn" value="Browse..."><br>
+    <form class="upload-form" action="upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="uploaded_file" value="Browse..."><br>
       <input type="submit" name="upload-btn" value="UPLOAD">
     </form>
   </body>

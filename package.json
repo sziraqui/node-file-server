@@ -1,0 +1,15 @@
+{
+  "name": "video-uploader",
+  "version": "1.0.0",
+  "description": "File uploader using nodejs backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sziraqui",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "express-fileupload": "^0.4.0"
+  }
+}
