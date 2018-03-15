@@ -8,8 +8,8 @@ const MongoClient = mongodb.MongoClient;
 
 app.use(fileUploader());
 
-const dbname = 'szi-data';
-const db_url =  "mongodb://localhost/szi-data";
+const dbname = 'szi_data';
+const db_url =  "mongodb://localhost/";
 
 let file_index_json = {};
 // Init
@@ -29,21 +29,17 @@ fs.stat(__dirname+'/uploads', (err, files) => {
 //Db Init
 MongoClient.connect(db_url, (err, db) => {
   if (err) return console.log("MongoClient.connect Error:", err.message);
-  db.db(dbname)
-    .collection('file_index')
-    .find({}, (err, result) => {
-      if (err) return console.log("db.find eror", err.message);
-      file_index_json = result;
-    });
-  console.log("INFO: Connected to MongoClient");
-  
-
+  let collection = db.db(dbname).collection('file_index');
+  collection.find().toArray((err, docs) => {
+    file_index_json = docs;
+  });
 });
 
 app.get('/', (request, response) => {
   fs.readFile('index.html', (err, data) => {
     response.writeHeader(200, {"Content-Type": "text/html"});
     response.write(data);
+    console.log(file_index_json);
     response.end();
   });
 });
@@ -56,11 +52,11 @@ app.post('/upload', (request, response) => {
 
     let new_file_index = {
       "name": file.name,
-      "src": file.path,
+      "src": __dirname + '/uploads',
     };
 
     MongoClient.connect(db_url, (err, db) => {
-      db.db("szi-data")
+      db.db(dbname)
       .collection("file_index")
       .insert(new_file_index, (err, result) => {
         if (err) return console.log("db.insert Error:", err.message);
