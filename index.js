@@ -1,9 +1,14 @@
 const express = require('express');
 const fs = require('fs');
 const fileUploader = require('express-fileupload');
+const mongodb = require('mongodb');
+
 const app = express();
+const MongoClient = mongodb.MongoClient;
 
 app.use(fileUploader());
+
+const db_url =  "mongodb://localhost/szi-data";
 
 // Init
 fs.stat(__dirname+'/uploads', (err, files) => {
@@ -18,6 +23,14 @@ fs.stat(__dirname+'/uploads', (err, files) => {
   } else
       console.log("INFO: uploads directory exists");
 });
+
+//Db Init
+MongoClient.connect(db_url, (err, db) => {
+  if (err) return console.log("MongoClient.connect Error:", err.message);
+
+  console.log("INFO: Connected to MongoClient");
+});
+
 app.get('/', (request, response) => {
   fs.readFile('index.html', (err, data) => {
     response.writeHeader(200, {"Content-Type": "text/html"});
