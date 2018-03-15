@@ -3,7 +3,7 @@ const fs = require('fs');
 const fileUploader = require('express-fileupload');
 const mongodb = require('mongodb');
 const path = require('path');
-const thumb = require('video-thumbnail');
+const thumb = require('video-thumb');
 
 const app = express();
 const MongoClient = mongodb.MongoClient;
@@ -66,7 +66,8 @@ app.get('/', (request, response) => {
     imgs_header = `<span style="margin:16px">All uploads</span><br><hr>`
     response.write(imgs_header);
     file_index_json.forEach(element => {
-      img_entry = `<img style="margin:16px" alt="Thumb" src=${element.src}/><br>`
+      console.log(element);
+      img_entry = `<img style="margin:16px" alt="Thumb" src=${element.thumb}/><br>`
       response.write(img_entry);
     });
 
@@ -83,14 +84,12 @@ app.post('/upload', (request, response) => {
     let new_file_index = {
       "name": file.name,
       "src": path.join(__dirname, path.join('uploads',file.name)),
-      "thumb": path.join(__dirname, path.join('thumbs',file.name))
+      "thumb": path.join(__dirname, path.join('thumbs',file.name + '.png'))
     };
-    thumb.video(new_file_index.src, path.join(__dirname,path.join('thumb',)), {width: 200, silent:true}).then(()=>{
-      console.log('Done!')
-  }).catch((err) => {
+    thumb.extract(new_file_index.src, new_file_index.thumb, (err) => {
       console.log(err)
       new_file_index.thumb = "";
-  });
+    });
     MongoClient.connect(db_url, (err, db) => {
       db.db(dbname)
       .collection("file_index")
