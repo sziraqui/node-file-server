@@ -5,6 +5,19 @@ const app = express();
 
 app.use(fileUploader());
 
+// Init
+fs.stat(__dirname+'/uploads', (err, files) => {
+  if (err) {
+    console.log('fs.stat Error:',err);
+    console.log('Attempting to create uploads directory...');
+    fs.mkdir(__dirname+'/uploads', (err) => {
+      if (err) console.log("fs.mkdir Error:",err);
+      else 
+        console.log("Succesfully created uploads directory");
+    });
+  } else
+      console.log("INFO: uploads directory exists");
+});
 app.get('/', (request, response) => {
   fs.readFile('index.html', (err, data) => {
     response.writeHeader(200, {"Content-Type": "text/html"});
