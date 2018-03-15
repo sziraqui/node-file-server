@@ -82,12 +82,14 @@ app.post('/upload', (request, response) => {
 
     let new_file_index = {
       "name": file.name,
-      "src": path.join(__dirname, 'uploads'),
+      "src": path.join(__dirname, path.join('uploads',file.name)),
+      "thumb": path.join(__dirname, path.join('thumbs',file.name))
     };
     thumb.video(new_file_index.src, path.join(__dirname,path.join('thumb',)), {width: 200, silent:true}).then(()=>{
       console.log('Done!')
-  }).catch((err)=>{
+  }).catch((err) => {
       console.log(err)
+      new_file_index.thumb = "";
   });
     MongoClient.connect(db_url, (err, db) => {
       db.db(dbname)
