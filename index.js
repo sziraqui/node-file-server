@@ -58,14 +58,18 @@ app.get('/', (request, response) => {
   fs.readFile('index.html', (err, data) => {
     response.writeHeader(200, {"Content-Type": "text/html"});
     response.write(data);
-    console.log(file_index_json);
+
+    if (Object.keys(request.query).length > 0 && typeof request.query.status === 'string') {
+      let last_status = `<span style="margin: 8px">${request.query.status}</span><br>`;
+      response.write(last_status);
+    }
     imgs_header = `<span style="margin:16px">All uploads</span><br><hr>`
     response.write(imgs_header);
     file_index_json.forEach(element => {
       img_entry = `<img style="margin:16px" alt="Thumb" src=${element.src}/><br>`
       response.write(img_entry);
     });
-    
+
     response.end();
   });
 });
@@ -89,15 +93,14 @@ app.post('/upload', (request, response) => {
       db.db(dbname)
       .collection("file_index")
       .insert(new_file_index, (err, result) => {
-        if (err) return console.log("db.insert Error:", err.message);
-
+        if (err) {
+          response.redirect('/?valid=FAILED');
+          return console.log("db.insert Error:", err.message);
+      }
         console.log("INFO: New file index added to database");
+        response.redirect('/?status=SUCCESS');
       });
-    });
-    
-    response.writeHeader(200, {"Content-Type": "text/html"});
-    response.write("file uploaded");
-    response.end();
+    }); 
 });
 const port = 3000;
 app.listen(port, () => { console.log(`Listening to port ${port}`)});
