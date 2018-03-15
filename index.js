@@ -2,6 +2,8 @@ const express = require('express');
 const fs = require('fs');
 const fileUploader = require('express-fileupload');
 const mongodb = require('mongodb');
+const path = require('path');
+const thumb = require('video-thumbnail');
 
 const app = express();
 const MongoClient = mongodb.MongoClient;
@@ -13,17 +15,30 @@ const db_url =  "mongodb://localhost/";
 
 let file_index_json = {};
 // Init
-fs.stat(__dirname+'/uploads', (err, files) => {
+fs.stat(path.join(__dirname,'uploads'), (err, files) => {
   if (err) {
     console.log('fs.stat Error:',err);
     console.log('Attempting to create uploads directory...');
-    fs.mkdir(__dirname+'/uploads', (err) => {
+    fs.mkdir(path.join(__dirname,'uploads'), (err) => {
       if (err) console.log("fs.mkdir Error:",err);
       else 
         console.log("Succesfully created uploads directory");
     });
   } else
       console.log("INFO: uploads directory exists");
+});
+
+fs.stat(path.join(__dirname,'thumbs'), (err, files) => {
+  if (err) {
+    console.log('fs.stat Error:',err);
+    console.log('Attempting to create thumbs directory...');
+    fs.mkdir(path.join(__dirname,'thumbs'), (err) => {
+      if (err) console.log("fs.mkdir Error:", err);
+      else 
+        console.log("Succesfully created thumbs directory");
+    });
+  } else
+      console.log("INFO: thumbs directory exists");
 });
 
 //Db Init
@@ -40,6 +55,13 @@ app.get('/', (request, response) => {
     response.writeHeader(200, {"Content-Type": "text/html"});
     response.write(data);
     console.log(file_index_json);
+    imgs_header = `<span style="margin:16px">All uploads</span><br><hr>`
+    response.write(imgs_header);
+    file_index_json.forEach(element => {
+      img_entry = `<img style="margin:16px" alt="Thumb" src=${element.src}/><br>`
+      response.write(img_entry);
+    });
+   
     response.end();
   });
 });
@@ -52,9 +74,13 @@ app.post('/upload', (request, response) => {
 
     let new_file_index = {
       "name": file.name,
-      "src": __dirname + '/uploads',
+      "src": path.join(__dirname, 'uploads'),
     };
-
+    thumb.video(new_file_index.src, path.join(__dirname,path.join('thumb',)), {width: 200, silent:true}).then(()=>{
+      console.log('Done!')
+  }).catch((err)=>{
+      console.log(err)
+  });
     MongoClient.connect(db_url, (err, db) => {
       db.db(dbname)
       .collection("file_index")
@@ -64,7 +90,7 @@ app.post('/upload', (request, response) => {
         console.log("INFO: New file index added to database");
       });
     });
-
+    
     response.writeHeader(200, {"Content-Type": "text/html"});
     response.write("file uploaded");
     response.end();
