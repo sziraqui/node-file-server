@@ -21,10 +21,12 @@ fs.stat(path.join(__dirname,'uploads'), (err, files) => {
     console.log('Attempting to create uploads directory...');
     fs.mkdir(path.join(__dirname,'uploads'), (err) => {
       if (err) console.log("fs.mkdir Error:",err);
-      else 
+      else {
+        fs.chmodSync(path.join(__dirname,'uploads'), 0o777);
         console.log("Succesfully created uploads directory");
+      }
     });
-  } else
+  } else 
       console.log("INFO: uploads directory exists");
 });
 
@@ -34,8 +36,10 @@ fs.stat(path.join(__dirname,'thumbs'), (err, files) => {
     console.log('Attempting to create thumbs directory...');
     fs.mkdir(path.join(__dirname,'thumbs'), (err) => {
       if (err) console.log("fs.mkdir Error:", err);
-      else 
+      else {
+        fs.chmodSync(path.join(__dirname,'thumbs'), 0o777);
         console.log("Succesfully created thumbs directory");
+      }
     });
   } else
       console.log("INFO: thumbs directory exists");
@@ -61,7 +65,7 @@ app.get('/', (request, response) => {
       img_entry = `<img style="margin:16px" alt="Thumb" src=${element.src}/><br>`
       response.write(img_entry);
     });
-   
+    
     response.end();
   });
 });
