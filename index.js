@@ -17,7 +17,7 @@ let file_index_json = {};
 // Init
 fs.stat(path.join(__dirname,'uploads'), (err, files) => {
   if (err) {
-    console.log('fs.stat Error:',err);
+    console.log('fs.stat Error:', err);
     console.log('Attempting to create uploads directory...');
     fs.mkdir(path.join(__dirname,'uploads'), (err) => {
       if (err) console.log("fs.mkdir Error:",err);
@@ -95,7 +95,7 @@ app.post('/upload', (request, response) => {
       .collection("file_index")
       .insert(new_file_index, (err, result) => {
         if (err) {
-          response.redirect('/?valid=FAILED');
+          response.redirect('/?status=FAILED');
           return console.log("db.insert Error:", err.message);
       }
         console.log("INFO: New file index added to database");
